@@ -27,11 +27,12 @@ public class InternalDaoGenerator {
     }
 
     private static enum RelationType {
-        TO_MANY
+        TO_MANY,
+        HAS_ONE
     }
 
     //GEN
-    private static final String SCHEMA_PATH = "/res/schema.json";
+    private static final String SCHEMA_PATH = "/../app/src/main/assets/schema.json";
     private static final String PACKAGE_NAME_KEY = "packageName";
     private static final String DATABASE_VERSION_KEY = "databaseVersion";
     private static final String TABLES_KEY = "tables";
@@ -166,18 +167,22 @@ public class InternalDaoGenerator {
                 JSONObject relation = relationsArray.optJSONObject(idx);
                 if (relation != null) {
                     RelationType type = RelationType.valueOf(relation.optString(RELATION_TYPE_KEY).toUpperCase());
-                    switch (type) {
-                        case TO_MANY: {
-                            Entity leftEntity = getEntityWithName(entityList, relation.getString(RELATION_LEFT_TABLE_KEY));
-                            Entity rightEntity = getEntityWithName(entityList, relation.getString(RELATION_RIGHT_TABLE_KEY));
-
-                            if (leftEntity != null && rightEntity != null) {
+                    final Entity leftEntity = getEntityWithName(entityList, relation.getString(RELATION_LEFT_TABLE_KEY));
+                    final Entity rightEntity = getEntityWithName(entityList, relation.getString(RELATION_RIGHT_TABLE_KEY));
+                    if (leftEntity != null && rightEntity != null) {
+                        switch (type) {
+                            case TO_MANY: {
                                 Property baseId = rightEntity.addLongProperty("parentId").notNull().getProperty();
                                 rightEntity.addToOne(leftEntity, baseId);
                                 leftEntity.addToMany(rightEntity, baseId, "childs" + rightEntity.getClassName());
                             }
+                            break;
+                            case HAS_ONE: {
+                                Property baseId = rightEntity.addLongProperty(relation.getString(RELATION_LEFT_TABLE_KEY) + "Id").notNull().getProperty();
+                                leftEntity.addToOne(rightEntity, baseId);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
