@@ -12,6 +12,7 @@ import de.greenrobot.daogenerator.DaoGenerator;
 import de.greenrobot.daogenerator.Entity;
 import de.greenrobot.daogenerator.Property;
 import de.greenrobot.daogenerator.Schema;
+import javafx.beans.property.LongProperty;
 
 public class InternalDaoGenerator {
 
@@ -167,19 +168,20 @@ public class InternalDaoGenerator {
                 JSONObject relation = relationsArray.optJSONObject(idx);
                 if (relation != null) {
                     RelationType type = RelationType.valueOf(relation.optString(RELATION_TYPE_KEY).toUpperCase());
+                    String relationName = relation.getString(RELATION_NAME_KEY);
+                    boolean mandatory = relation.optBoolean(TABLE_PROPERTY_MANDATORY_KEY, false);
                     final Entity leftEntity = getEntityWithName(entityList, relation.getString(RELATION_LEFT_TABLE_KEY));
                     final Entity rightEntity = getEntityWithName(entityList, relation.getString(RELATION_RIGHT_TABLE_KEY));
                     if (leftEntity != null && rightEntity != null) {
                         switch (type) {
                             case TO_MANY: {
-                                Property baseId = rightEntity.addLongProperty("parentId").notNull().getProperty();
+                                Property baseId = mandatory ? rightEntity.addLongProperty("parentId").notNull().getProperty() : rightEntity.addLongProperty("parentId").getProperty();
                                 rightEntity.addToOne(leftEntity, baseId);
                                 leftEntity.addToMany(rightEntity, baseId, "childs" + rightEntity.getClassName());
                             }
                             break;
                             case HAS_ONE: {
-                                Property baseId = rightEntity.addLongProperty(relation.getString(RELATION_LEFT_TABLE_KEY) + "Id").notNull().getProperty();
-                                leftEntity.addToOne(rightEntity, baseId);
+                                leftEntity.addToOneWithoutProperty(relationName, rightEntity, relationName + "Id");
                             }
                             break;
                         }
