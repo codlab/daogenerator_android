@@ -12,7 +12,6 @@ import de.greenrobot.daogenerator.DaoGenerator;
 import de.greenrobot.daogenerator.Entity;
 import de.greenrobot.daogenerator.Property;
 import de.greenrobot.daogenerator.Schema;
-import javafx.beans.property.LongProperty;
 
 public class InternalDaoGenerator {
 
