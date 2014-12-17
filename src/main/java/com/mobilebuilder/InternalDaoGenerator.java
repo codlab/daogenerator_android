@@ -181,11 +181,14 @@ public class InternalDaoGenerator {
                             }
                             break;
                             case HAS_ONE: {
-                                leftEntity.addToOneWithoutProperty(relationName, rightEntity, relationName + "Id");
+                                String relation_name = relationName+"Id";
+                                Property baseId = mandatory ? leftEntity.addLongProperty(relation_name).notNull().getProperty() : leftEntity.addLongProperty(relation_name).getProperty();
+                                leftEntity.addToOne(rightEntity, baseId, relationName);
+
                             }
                             break;
                             case HAS_MANY: {
-                                leftEntity.addToOneWithoutProperty(relationName, rightEntity, relationName + "Id");
+                                leftEntity.addToOneWithoutProperty(relationName, rightEntity, relationName);
                             }
                             break;
                         }
