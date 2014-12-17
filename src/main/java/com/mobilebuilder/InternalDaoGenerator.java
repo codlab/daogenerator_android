@@ -28,7 +28,8 @@ public class InternalDaoGenerator {
 
     private static enum RelationType {
         TO_MANY,
-        HAS_ONE
+        HAS_ONE,
+        HAS_MANY
     }
 
     //GEN
@@ -180,6 +181,10 @@ public class InternalDaoGenerator {
                             }
                             break;
                             case HAS_ONE: {
+                                leftEntity.addToOneWithoutProperty(relationName, rightEntity, relationName + "Id");
+                            }
+                            break;
+                            case HAS_MANY: {
                                 leftEntity.addToOneWithoutProperty(relationName, rightEntity, relationName + "Id");
                             }
                             break;
