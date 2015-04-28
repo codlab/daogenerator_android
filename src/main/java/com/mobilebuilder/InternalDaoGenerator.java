@@ -61,7 +61,7 @@ public class InternalDaoGenerator {
     public static void main(String[] args) throws Exception {
 
 
-        String filePath = new File("").getAbsolutePath().concat(SCHEMA_PATH);
+        String filePath = new File(SCHEMA_PATH).getAbsolutePath();
 
         File file = new File(filePath);
         FileInputStream fis = null;
