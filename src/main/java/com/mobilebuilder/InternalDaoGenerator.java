@@ -32,8 +32,10 @@ public class InternalDaoGenerator {
         HAS_MANY
     }
 
+    //SYSTEM PROPERTIES
+    private static final String DAOGENERATOR_SCHEMA_PATH = "DAOGENERATOR_SCHEMA_PATH";
     //GEN
-    private static final String SCHEMA_PATH = "/../app/src/main/assets/schema.json";
+    private static final String SCHEMA_PATH = System.getProperty(DAOGENERATOR_SCHEMA_PATH, "/../app/src/main/assets/schema.json");
     private static final String PACKAGE_NAME_KEY = "packageName";
     private static final String DATABASE_VERSION_KEY = "databaseVersion";
     private static final String TABLES_KEY = "tables";
