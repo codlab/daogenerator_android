@@ -21,7 +21,19 @@ apply plugin: 'java'
 
 mainClassName = "com.mobilebuilder.InternalDaoGenerator"
 
+def schema_path = "$projectDir/../app/src/main/assets/schema.json"
 def generatedResources = "$projectDir/../app/src/main/java-gen"
+
+if ("${daogenerator_generated_path}" && "${daogenerator_schema_path}") {
+    generatedResources = "${daogenerator_generated_path}"
+    schema_path = "${daogenerator_schema_path}"
+} else {
+    println("DEFAULT CONFIGURATION IN USE \n"
+            + "Please set the variables : \n"
+            + "ext.daogenerator_schema_path = 'some path' \n"
+            + "ext.daogenerator_generated_path = 'some path' \n"
+            + "in your buildscript")
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -35,5 +47,6 @@ task createDocs {
 }
 
 run {
+    systemProperty 'DAOGENERATOR_SCHEMA_PATH',schema_path
     args generatedResources
 }
