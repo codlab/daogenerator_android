@@ -24,7 +24,7 @@ mainClassName = "com.mobilebuilder.InternalDaoGenerator"
 def schema_path = "$projectDir/../app/src/main/assets/schema.json"
 def generatedResources = "$projectDir/../app/src/main/java-gen"
 
-if ("${daogenerator_generated_path}" && "${daogenerator_schema_path}") {
+if ("${daogenerator_generated_path}".length() > 0 && "${daogenerator_schema_path}".length() > 0) {
     generatedResources = "${daogenerator_generated_path}"
     schema_path = "${daogenerator_schema_path}"
 } else {
