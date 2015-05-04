@@ -21,18 +21,22 @@ apply plugin: 'java'
 
 mainClassName = "com.mobilebuilder.InternalDaoGenerator"
 
-def schema_path = "$projectDir/../app/src/main/assets/schema.json"
-def generatedResources = "$projectDir/../app/src/main/java-gen"
+def getGeneratedResourcesPath() {
+    return hasProperty('DAOGENERATOR_GENERATED_PATH_ROOT_PROJECT') ? "$rootProject.projectDir/"+DAOGENERATOR_GENERATED_PATH_ROOT_PROJECT
+            : "$projectDir/../app/src/main/java-gen"
+}
 
-if ("${daogenerator_generated_path}" && "${daogenerator_schema_path}") {
-    generatedResources = "${daogenerator_generated_path}"
-    schema_path = "${daogenerator_schema_path}"
-} else {
+def getSchemaPath() {
+    return hasProperty('DAOGENERATOR_SCHEMA_PATH_ROOT_PROJECT') ? "$rootProject.projectDir/"+DAOGENERATOR_SCHEMA_PATH_ROOT_PROJECT
+            : "$projectDir/../app/src/main/assets/schema.json"
+}
+
+if (!hasProperty('DAOGENERATOR_GENERATED_PATH_ROOT_PROJECT') || !hasProperty('DAOGENERATOR_SCHEMA_PATH_ROOT_PROJECT')) {
     println("DEFAULT CONFIGURATION IN USE \n"
-            + "Please set the variables : \n"
-            + "ext.daogenerator_schema_path = 'some path' \n"
-            + "ext.daogenerator_generated_path = 'some path' \n"
-            + "in your buildscript")
+            + "Please set the variables in your root project gradle.properties: \n"
+            + "DAOGENERATOR_GENERATED_PATH_ROOT_PROJECT = 'some path relative to the root project' \n"
+            + "DAOGENERATOR_SCHEMA_PATH_ROOT_PROJECT = 'some path relative to the root project'")
+
 }
 
 dependencies {
@@ -42,11 +46,11 @@ dependencies {
 }
 
 task createDocs {
-    def docs = file(generatedResources)
+    def docs = file(getGeneratedResourcesPath())
     docs.mkdirs()
 }
 
 run {
-    systemProperty 'DAOGENERATOR_SCHEMA_PATH',schema_path
-    args generatedResources
+    systemProperty 'DAOGENERATOR_SCHEMA_PATH', getSchemaPath()
+    args getGeneratedResourcesPath()
 }
