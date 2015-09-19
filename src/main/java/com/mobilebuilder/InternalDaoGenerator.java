@@ -34,7 +34,14 @@ public class InternalDaoGenerator {
 
     //SYSTEM PROPERTIES
     private static final String DAOGENERATOR_SCHEMA_PATH = "DAOGENERATOR_SCHEMA_PATH";
+
+    //IO
+    private static final String SCHEMA = "schema.json";
+    private static final String OUTPUT_SCHEMA_INEXISTANT = "No schema.json in %s";
+    private static final String OUTPUT_MISSING_OUTPUT_DIR = "Invalid output_dir in %s's schema.json";
+
     //GEN
+    private static final String SCHEMA_OUTPUT_DIR = "output_dir";
     private static final String SCHEMA_PATH = System.getProperty(DAOGENERATOR_SCHEMA_PATH, "/../app/src/main/assets/schema.json");
     private static final String PACKAGE_NAME_KEY = "packageName";
     private static final String DATABASE_VERSION_KEY = "databaseVersion";
@@ -59,13 +66,25 @@ public class InternalDaoGenerator {
 
 
     public static void main(String[] args) throws Exception {
+        for (String path : args) {
+            System.out.println("inspecting " + path);
+            inspectPath(path);
+            System.out.println("\n");
+        }
+    }
 
-
-        String filePath = new File(SCHEMA_PATH).getAbsolutePath();
+    private static void inspectPath(String path) {
+        String filePath = new File(path, SCHEMA).getAbsolutePath();
 
         File file = new File(filePath);
         FileInputStream fis = null;
         StringBuilder data;
+
+        if (!file.exists()) {
+            System.out.println(String.format(OUTPUT_SCHEMA_INEXISTANT, file.getAbsolutePath()));
+            return;
+        }
+
         try {
 
             fis = new FileInputStream(file);
@@ -78,6 +97,12 @@ public class InternalDaoGenerator {
 
             JSONObject j = new JSONObject(data.toString());
 
+            String output_dir = j.optString(SCHEMA_OUTPUT_DIR, null);
+            if (output_dir == null) {
+                System.out.println(String.format(OUTPUT_MISSING_OUTPUT_DIR, path));
+                return;
+            }
+
             Schema schema = new Schema(j.optInt(DATABASE_VERSION_KEY, 1), j.optString(PACKAGE_NAME_KEY, "db"));
             JSONArray tablesArray = j.optJSONArray(TABLES_KEY);
             addTables(schema, tablesArray);
@@ -85,9 +110,9 @@ public class InternalDaoGenerator {
             JSONArray relationsArray = j.optJSONArray(RELATION_KEY);
             setupRelations(schema, relationsArray);
 
-            new DaoGenerator().generateAll(schema, args[0]);
+            new DaoGenerator().generateAll(schema, new File(path, output_dir).getAbsolutePath());
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -183,7 +208,7 @@ public class InternalDaoGenerator {
                             }
                             break;
                             case HAS_ONE: {
-                                String relation_name = relationName+"Id";
+                                String relation_name = relationName + "Id";
                                 Property baseId = mandatory ? leftEntity.addLongProperty(relation_name).notNull().getProperty() : leftEntity.addLongProperty(relation_name).getProperty();
                                 leftEntity.addToOne(rightEntity, baseId, relationName);
 
